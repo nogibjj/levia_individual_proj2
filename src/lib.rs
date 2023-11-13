@@ -16,6 +16,14 @@ pub struct Database {
 impl Database {
     pub fn new() -> Result<Self> {
         let connection = Connection::open("my_database.db")?;
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS my_table (
+                id INTEGER PRIMARY KEY,
+                data_column TEXT NOT NULL
+            )",
+            [],
+        )?;
+
         Ok(Database { connection })
     }
     //create data
