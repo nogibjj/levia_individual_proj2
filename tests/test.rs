@@ -1,69 +1,61 @@
-
+// In tests/test.rs
 
 use my_project::Database; 
-use rusqlite::Result;
+use rusqlite::{Result, NO_PARAMS};
 
-// Test creating data functionality
+// Function to create a new, isolated database for each test
+fn setup_test_db() -> Result<Database> {
+    let db = Database::new_in_memory()?; 
+    db.connection.execute(
+        "CREATE TABLE IF NOT EXISTS my_table (
+            id INTEGER PRIMARY KEY,
+            data_column TEXT NOT NULL
+        )", NO_PARAMS)?;
+    Ok(db)
+}
+
 #[test]
 fn test_create_data() -> Result<()> {
-    let db = Database::new()?;
+    let db = setup_test_db()?;
 
-    // Add some test data
     db.create_data("Test data")?;
-
-    // Verify if the data was added
     let data = db.get_all_data()?;
     assert!(data.contains(&"Test data".to_string()));
 
     Ok(())
 }
 
-// Test reading data functionality
 #[test]
 fn test_read_data() -> Result<()> {
-    let db = Database::new()?;
+    let db = setup_test_db()?;
 
-    // Retrieve data
+    db.create_data("Test data")?;
     let data = db.get_all_data()?;
-
-    // Verify if the data exists
     assert!(!data.is_empty());
 
     Ok(())
 }
 
-// Test updating data functionality
 #[test]
 fn test_update_data() -> Result<()> {
-    let db = Database::new()?;
-    
-    // First, add some test data
+    let db = setup_test_db()?;
+
     db.create_data("Old data")?;
-    
-    // Assuming we update the record with ID 1
     let update_id = 1;
     db.update_data(update_id, "Updated data")?;
-
-    // Verify if the data was updated
     let data = db.get_all_data()?;
     assert!(data.contains(&"Updated data".to_string()));
 
     Ok(())
 }
 
-// Test deleting data functionality
 #[test]
 fn test_delete_data() -> Result<()> {
-    let db = Database::new()?;
+    let db = setup_test_db()?;
 
-    // Add some data to delete
     db.create_data("Data to delete")?;
-    
-    // Assuming we delete the record with ID 1
     let delete_id = 1;
     db.delete_data(delete_id)?;
-
-    // Verify if the data was deleted
     let data = db.get_all_data()?;
     assert!(!data.contains(&"Data to delete".to_string()));
 
