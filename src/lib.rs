@@ -35,7 +35,7 @@ impl Database {
     //read data
     pub fn get_all_data(&self) -> Result<Vec<String>> {
         let mut stmt = self.connection.prepare("SELECT * FROM my_table")?;
-        let data_iter = stmt.query_map([], |row| row.get(0))?;
+        let data_iter = stmt.query_map([], |row| row.get(1))?;
 
         let mut result = Vec::new();
         for data in data_iter {
